@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A-RSI | Adaptive Task Refresh for Zero-Data Multimodal Self-Improvement</title>
+<meta name="description" content="A-RSI refreshes a multimodal RL task pool when its own training logs show the learning signal declining, and draws fresh programmatic tasks whose answers are computed, not voted.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="container">
+    <a class="brand" href="#top"><span class="wm two"><span class="cal">A</span><span class="rsi">-RSI</span></span><span class="team">SeerRay Lab</span></a>
+    <nav class="top-nav" id="topnav">
+      <a href="#abstract">Abstract</a><a href="#overview">Overview</a><a href="#demo">Demo</a><a href="#method">Method</a><a href="#results">Results</a><a href="#analysis">Analysis</a><a href="#cases">Cases</a><a href="#citation">Citation</a>
+    </nav>
+  </div>
+</header>
+<nav class="side-nav" id="sidenav">
+  <a href="#abstract">Abstract</a><a href="#overview">Overview</a><a href="#demo">Demo</a><a href="#method">Method</a><a href="#results">Results</a><a href="#analysis">Analysis</a><a href="#cases">Cases</a><a href="#citation">Citation</a>
+</nav>
+
+<main id="top">
+<section class="masthead container">
+  <p class="eyebrow">Zero-data · Multimodal · Recursive self-improvement</p>
+  <h1><span class="wm two"><span class="cal">A</span><span class="rsi">-RSI</span></span></h1>
+  <p class="subtitle">Adaptive Task Refresh for Zero-Data Multimodal Self-Improvement</p>
+
+  <div class="authors">
+    <span>Yu Liu<sup>1,4,*</sup></span><span>Youxing Li<sup>2,*,§</sup></span><span>Yuedong Tan<sup>3,*</sup></span><span>Zhiwei Yang<sup>1,4</sup></span><span>Zihan Su<sup>5</sup></span>
+    <span>Hanqi Feng<sup>6</sup></span><span>Shaojie Zhang<sup>4</sup></span><span>Libin Liao<sup>9</sup></span><span>Zihao Wan<sup>9</sup></span><span>Chenxu Wu<sup>9</sup></span>
+    <span>Cong Cao<sup>1,†</sup></span><span>Fangfang Yuan<sup>1</sup></span><span>Yanbing Liu<sup>1</sup></span><span>Ziheng Chen<sup>7,8</sup></span><span>Pei Fu<sup>4,†</sup></span>
+    <span>Radu Timofte<sup>3</sup></span><span>Zongwei Wu<sup>3</sup></span><span>Nicu Sebe<sup>8</sup></span><span>Barnabas Poczos<sup>6</sup></span><span>Jian Luan<sup>4</sup></span>
+  </div>
+  <p class="roles"><sup>*</sup>Equal contribution &nbsp;·&nbsp; <sup>§</sup>Project lead &nbsp;·&nbsp; <sup>†</sup>Corresponding authors</p>
+  <div class="affils">
+    <div class="affil" title="Institute of Information Engineering, Chinese Academy of Sciences"><sup>1</sup><img src="assets/logos/iie.png" alt="Institute of Information Engineering, CAS"></div>
+    <div class="affil" title="The Chinese University of Hong Kong"><sup>2</sup><img src="assets/logos/cuhk.png" alt="The Chinese University of Hong Kong"></div>
+    <div class="affil" title="University of Würzburg"><sup>3</sup><img src="assets/logos/wuerzburg.svg" alt="University of Würzburg"></div>
+    <div class="affil" title="Xiaomi"><sup>4</sup><img src="assets/logos/xiaomi-h.svg" alt="Xiaomi" style="height:24px"></div>
+    <div class="affil" title="Harvard University"><sup>5</sup><img src="assets/logos/harvard.svg" alt="Harvard University"></div>
+    <div class="affil" title="Carnegie Mellon University"><sup>6</sup><img class="tall" src="assets/logos/cmu.png" alt="Carnegie Mellon University"></div>
+    <div class="affil" title="Max Planck Institute for Intelligent Systems"><sup>7</sup><img src="assets/logos/mpi-is.png" alt="Max Planck Institute for Intelligent Systems"></div>
+    <div class="affil" title="University of Trento"><sup>8</sup><img src="assets/logos/trento.png" alt="University of Trento"></div>
+    <div class="affil" title="Xi'an Jiaotong University"><sup>9</sup><img src="assets/logos/xjtu.png" alt="Xi'an Jiaotong University"></div>
+  </div>
+
+  <div class="btn-row">
+    <span class="btn disabled" title="The preprint link will be added on release">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+      Paper <span class="sub">coming soon</span></span>
+    <a class="btn" href="https://github.com/SeerRay-Lab/A-RSI" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+      Code <span class="sub">GitHub</span></a>
+    <a class="btn" href="#demo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+      Demo <span class="sub">interactive</span></a>
+  </div>
+
+  <!-- the loop, replayed from the paper's Qwen trajectory -->
+  <div class="loop rv" id="loop">
+    <div class="loop-head">
+      <span class="live"><i></i> The loop, replayed</span>
+      <span>Qwen3-VL-8B · main trajectory · values from the paper</span>
+    </div>
+    <div class="loop-body">
+      <div class="loop-col">
+        <h4>Active task pool</h4>
+        <div class="big" id="lp-pool">Old pool · 500 tasks</div>
+        <div class="pool-grid" id="lp-grid"></div>
+        <div class="legend-mini"><span><b style="background:var(--geo)"></b>geometry</span><span><b style="background:var(--chart)"></b>charts</span><span><b style="background:var(--table)"></b>tables</span><span><b style="background:var(--count)"></b>counting</span></div>
+        <div class="legend-mini" style="margin-top:4px" id="lp-fresh">Fresh tasks introduced: <b style="width:auto;height:auto;background:none;color:#fff">0</b></div>
+      </div>
+      <div class="loop-col solver">
+        <h4 style="align-self:flex-start">Solver · GRPO</h4>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="9"/><circle class="prog" id="lp-ring" cx="60" cy="60" r="52" fill="none" stroke-width="9" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+          <div class="label"><b id="lp-win">S<sub>t</sub></b><small id="lp-step">start</small></div>
+        </div>
+        <div class="score"><div class="num" id="lp-score">57.77</div><div class="cap">Macro11 · 11 full benchmarks · 8,192 tokens</div></div>
+      </div>
+      <div class="loop-col">
+        <h4>Saturation detector</h4>
+        <div class="big">Reads training logs only</div>
+        <div class="gauge">
+          <div class="row"><span>Signal retained <span class="muted">U<sub>w</sub>/U<sub>w−2</sub></span></span><b id="lp-ret">—</b></div>
+          <div class="bar"><div class="fill" id="lp-retbar" style="width:0"></div><div class="thr" style="left:85%" data-l="ρ = 85%"></div></div>
+          <div class="row"><span>Training accuracy rise <span class="muted">Δa</span></span><b id="lp-acc">—</b></div>
+          <div class="bar"><div class="fill" id="lp-accbar" style="width:0"></div><div class="thr" style="left:50%" data-l="η = 10 pp"></div></div>
+        </div>
+        <div class="decision" id="lp-dec">Collecting the first three windows on this pool…</div>
+      </div>
+    </div>
+    <div class="loop-foot">
+      <div class="timeline" id="lp-tl"></div>
+      <div class="loop-ctrl">
+        <button id="lp-play" type="button">Pause</button><button id="lp-restart" type="button">Restart</button>
+        <span class="src">S<sub>t</sub> = 57.77: results text and Fig. 4(a) · S<sub>11</sub>–S<sub>32</sub>: Qwen benchmark table · U counts: appendix controller table</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats rv">
+    <div class="stat"><div class="v">57.77 → <em>61.05</em></div><div class="k">Macro11 after eight continuation windows on Qwen3-VL-8B</div></div>
+    <div class="stat"><div class="v"><em>800</em> vs 3,200</div><div class="k">fresh tasks for 61.05, against 60.64 for refreshing every window</div></div>
+    <div class="stat"><div class="v"><em>+2.05</em></div><div class="k">over continued training on the old pool at matched window 6</div></div>
+    <div class="stat"><div class="v"><em>0</em></div><div class="k">external training examples or human-written answer labels</div></div>
+  </div>
+</section>
+
+<!-- ============ ABSTRACT ============ -->
+<section class="block container narrow abstract" id="abstract">
+  <p class="kicker">Abstract</p>
+  <h2 class="title">Knowing what to learn is half the problem.<br>Knowing when to stop learning it is the other half.</h2>
+  <p><strong>Recursive self-improvement</strong> requires models not only to acquire useful training experience, but also to decide when their current experience has ceased to be useful. Existing methods often focus on what experience to generate next, while paying less attention to when fresh experience should be introduced. Many also construct training targets through self-consistency or majority voting, making supervision depend on the model's own uncertain predictions.</p>
+  <p>We address these two questions separately: <strong>training dynamics</strong> determine when to acquire new experience, while the answers to new tasks remain <strong>independently checkable</strong>. <span class="wm two"><span class="cal">A</span><span class="rsi">-RSI</span></span> monitors reward variation and accuracy in training logs to refresh a task pool when its learning signal declines, without consulting validation or test scores. A static library of <strong>model-authored programs</strong> produces multimodal questions and derives their reference answers; we specify the task-generation contract, automatically verify chosen properties of the reward and refresh rules, and separately audit the generated answers. The training loop uses no external training examples or human-written answer labels. On the primary eleven-benchmark suite, A-RSI raises the performance average from 57.77 to 61.05 with 800 fresh tasks.</p>
+</section>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="block container" id="overview">
+  <p class="kicker">Overview</p>
+  <h2 class="title">Two questions.<br>Two independent sources of truth.</h2>
+  <p class="lead">A system can keep spending updates on a pool whose learning signal has declined, while refreshing too often consumes new tasks it may not need. And when training targets come from votes, the model's own errors become the labels for its next update. A-RSI separates the two decisions.</p>
+  <div class="qgrid">
+    <div class="qcard rv"><div class="q">Question 1</div><h3>When should fresh experience come in?</h3><p>Prompts whose sampled responses receive different rewards are the ones still teaching. A-RSI counts them in its own GRPO logs, together with logged accuracy, and refreshes the whole pool when that signal declines.</p><div class="ans">Answered by training dynamics, never by validation or test scores.</div></div>
+    <div class="qcard navy rv"><div class="q">Question 2</div><h3>What is the right answer to a new task?</h3><p>A fixed library of model-written programs builds each image, question, and reference answer from one sampled configuration. The answer is computed, not voted, and can be recomputed by an independent solver.</p><div class="ans">Answered by programs, independently checkable.</div></div>
+  </div>
+  <div class="three">
+    <div class="rv"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16"/></svg><h3>Programmatic experience</h3><p>Geometry, chart, table, and counting templates are written once by the base model and frozen. Replacement tasks need no further model call for their questions or answers.</p></div>
+    <div class="rv"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><h3>Log-triggered refresh</h3><p>After each accepted window the controller compares the signal with two windows earlier. A drop below 85% or a 10-point accuracy rise swaps in a prepared, unused pool; the weights carry on.</p></div>
+    <div class="rv"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><h3>Gains that survive audits</h3><p>A score can rise because more answers finish inside the output budget, or because finished answers get corrected. A-RSI reports the two separately and audits its own data and rewards.</p></div>
+  </div>
+  <div class="figure rv">
+    <img src="assets/fig/aspire_overview.webp" alt="Overview of A-RSI: prepare fixed programs and checked pools; train the solver on the active pool; decide from logs whether the pool is still teaching." loading="lazy" data-zoom>
+  </div>
+  <p class="caption"><b>Overview of A-RSI.</b> Task templates, the candidate reservoir, and replacement pools are fixed before training. The controller reads training logs to decide when to activate a fresh pool; only the Solver policy is optimized.</p>
+
+  <h3 class="sub">Why the timing question matters</h3>
+  <p class="muted narrow">Reusing a pool can stall learning, while fewer truncations can raise accuracy without any better reasoning. A-RSI lets training logs guide refresh, and audits responses to tell completion apart from error correction.</p>
+  <div class="figure rv">
+    <img src="assets/fig/aspire_motivation.webp" alt="Motivation for A-RSI: existing RSI reuses a pool; completion gains vs correctness gains." loading="lazy" data-zoom>
+  </div>
+  <p class="caption"><b>Motivation.</b> (a) Pool reuse can stall learning, while fewer truncations can raise accuracy. (b) Training logs guide refresh, and response audits distinguish completion from error correction.</p>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section class="block alt" id="demo">
+  <div class="container">
+    <p class="kicker">Interactive demo</p>
+    <h2 class="title">Play with the loop.</h2>
+    <p class="lead">Three pieces of A-RSI, running in your browser. The task forge executes small templates written in the same contract as the paper's generators. The controller and the policy explorer replay the logged values and scores reported in the paper.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-tab="forge" role="tab" aria-selected="true" aria-controls="panel-forge"><span class="n">01</span>Task forge</button>
+      <button class="tab" data-tab="ctrl" role="tab" aria-selected="false" aria-controls="panel-ctrl"><span class="n">02</span>Refresh controller</button>
+      <button class="tab" data-tab="policy" role="tab" aria-selected="false" aria-controls="panel-policy"><span class="n">03</span>Policy explorer</button>
+    </div>
+
+    <!-- forge -->
+    <div class="panel on" id="panel-forge" role="tabpanel">
+      <p class="muted narrow" style="margin:0 0 14px">Each template samples parameters <span class="kx">\(z\sim p_\tau\)</span>, builds one underlying configuration, and from it renders the image, writes the question, and computes the answer: <span class="kx">\((I,q,a)=G_\tau(z)\)</span>. The learner only ever sees <span class="kx">\((I,q)\)</span>.</p>
+      <div class="chips" id="fg-fam">
+        <button class="chip on" data-f="chart"><i style="background:var(--chart)"></i>Chart</button>
+        <button class="chip" data-f="table"><i style="background:var(--table)"></i>Table</button>
+        <button class="chip" data-f="count"><i style="background:var(--count)"></i>Counting</button>
+        <button class="chip" data-f="geo"><i style="background:var(--geo)"></i>Geometry</button>
+        <span style="flex:1"></span>
+        <button class="btn-p" id="fg-gen" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Sample a new task</button>
+      </div>
+      <div class="forge">
+        <div class="forge-card">
+          <div class="hd"><span>What the learner sees · (I, q)</span><span class="tag" id="fg-id">—</span></div>
+          <div class="forge-img" id="fg-img"></div>
+          <div class="forge-q" id="fg-q"></div>
+          <div class="respond">
+            <div class="row"><b style="font-size:.86rem">Answer as the Solver:</b><input type="text" id="fg-in" placeholder="your answer" aria-label="your answer"><label><input type="checkbox" id="fg-box" checked> boxed final answer</label><label><input type="checkbox" id="fg-stop" checked> ended normally (not cut off)</label></div>
+            <div class="rwd" id="fg-rwd"></div>
+            <p class="small muted" style="margin:8px 0 0">Reward <span class="kx">\(r=r_{\mathrm{ans}}+0.1\,r_{\mathrm{fmt}}+0.3\,r_{\mathrm{stop}}\)</span>; <span class="kx">\(r_{\mathrm{stop}}=0\)</span> only when decoding ends normally with a final boxed answer, otherwise <span class="kx">\(-1\)</span>. A wrong answer can never outrank a right one: <span class="kx">\(1-0.1-0.3>0\)</span>.</p>
+          </div>
+        </div>
+        <div class="forge-card">
+          <div class="hd"><span>What the program knows · z, s(z), a</span><span class="tag">hidden from the learner</span></div>
+          <div class="zbox" id="fg-z"></div>
+          <div class="answer"><span class="small muted">Reference answer</span><span class="gold" id="fg-gold">?</span><button class="btn-g" id="fg-reveal" type="button">Reveal</button><span class="eqn" id="fg-eqn"></span></div>
+          <div class="hd" style="border-top:1px solid var(--line)"><span>Admission checks</span><span class="tag" id="fg-adm">—</span></div>
+          <ul class="checks" id="fg-checks"></ul>
+          <div class="verdict" id="fg-verdict"></div>
+          <div style="padding:0 14px 14px"><span class="small muted">This session's admitted pool (fresh = not seen before):</span><div class="history" id="fg-hist"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- controller -->
+    <div class="panel" id="panel-ctrl" role="tabpanel">
+      <p class="muted narrow" style="margin:0 0 6px">At the end of each window the controller compares the logged signal with its value two windows earlier, after at least three accepted windows on the same pool:</p>
+      <div class="eqbox" style="margin-top:8px"><span class="kx">\[\delta_w=\begin{cases}1,& n_w\ge n_{\min}\ \text{and}\ \bigl(U_w\le \rho\,U_{w-\ell}\ \ \text{or}\ \ a_w-a_{w-\ell}\ge \eta\bigr)\\ 0,&\text{otherwise}\end{cases}\]</span></div>
+      <div class="ctrl-top">
+        <div class="seg" id="ct-model"><button class="on" data-m="Qwen">Qwen3-VL-8B</button><button data-m="MiMo">MiMo-VL-7B</button></div>
+        <div class="slider"><label>Signal-retention threshold ρ <b id="ct-rho-v">85%</b></label><input type="range" id="ct-rho" min="60" max="100" step="1" value="85"><small>paper: 85%</small></div>
+        <div class="slider"><label>Accuracy-rise threshold η <b id="ct-eta-v">10.0 pp</b></label><input type="range" id="ct-eta" min="2" max="20" step="0.5" value="10"><small>paper: 10 points</small></div>
+        <button class="btn-g" id="ct-reset" type="button">Reset to paper</button>
+      </div>
+      <div class="pools" id="ct-pools"></div>
+      <div class="note" id="ct-note"></div>
+    </div>
+
+    <!-- policy explorer -->
+    <div class="panel" id="panel-policy" role="tabpanel">
+      <div class="viz-head" style="margin-bottom:0">
+        <p class="muted narrow" style="margin:0" id="pe-intro">Five refresh policies, aligned by training updates. Hover the chart for exact scores, click a legend entry to hide or show a policy.</p>
+        <div class="seg" id="pe-model"><button class="on" data-m="qwen">Qwen3-VL-8B</button><button data-m="mimo">MiMo-VL-7B</button></div>
+      </div>
+      <div class="two-col">
+        <div class="viz" id="pe-chart"></div>
+        <div class="viz" id="pe-bars"></div>
+      </div>
+      <div class="viz" id="pe-sched" style="margin-top:18px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section class="block container" id="method">
+  <p class="kicker">Method</p>
+  <h2 class="title">Construct. Train. Detect. Refresh.</h2>
+  <p class="lead">A-RSI supports continued multimodal reinforcement learning with a programmatic task pipeline and a training-log controller. Training experience changes the <em>timing</em> of data replacement; it does not update the generator or the task-sampling distribution.</p>
+  <div class="steps">
+    <div class="step rv"><h3>Construct</h3><p>The base model writes parameterized programs for geometry, charts, tables, and counting once. Executing them yields an image, a question, and a program-computed answer.</p><div class="eq kx">\(z\sim p_\tau,\ (I,q,a)=G_\tau(z)\)</div></div>
+    <div class="step rv"><h3>Train</h3><p>The Solver samples <span class="kx">\(m\)</span> responses per task and is updated with GRPO on correctness, format, and stopping rewards. Templates and controller stay fixed.</p><div class="eq kx">\(r=r_{\mathrm{ans}}+\lambda_{\mathrm{fmt}}r_{\mathrm{fmt}}+\lambda_{\mathrm{stop}}r_{\mathrm{stop}}\)</div></div>
+    <div class="step rv"><h3>Detect</h3><p>A response group with identical rewards has zero advantage. The controller counts distinct prompts that still carry signal, and how often responses are correct.</p><div class="eq kx">\(U_w,\ a_w\ \text{from}\ \mathcal{L}_w\)</div></div>
+    <div class="step rv"><h3>Refresh</h3><p>When the rule fires, the whole pool is replaced by unused tasks drawn in a fixed pseudorandom order under fixed family quotas. Weights carry forward.</p><div class="eq kx">\(\mathcal{P}_{w+1}=\operatorname{Draw}_{\mathbf{k}}(\mathcal{C}\setminus\mathcal{H}_w)\)</div></div>
+  </div>
+
+  <h3 class="sub">Measuring whether a pool is still teaching</h3>
+  <p class="narrow muted">For the response groups <span class="kx">\(\mathcal{G}_w\)</span> logged after dynamic resampling, with logged advantages <span class="kx">\(A_{g,j}\)</span> and answer rewards <span class="kx">\(c_{g,j}\)</span>:</p>
+  <div class="eqbox"><span class="kx">\[U_w=\Bigl|\bigl\{x_g:\ g\in\mathcal{G}_w,\ \max_{1\le j\le m}|A_{g,j}|>\varepsilon\bigr\}\Bigr|,\qquad a_w=\frac{1}{m|\mathcal{G}_w|}\sum_{g\in\mathcal{G}_w}\sum_{j=1}^{m}c_{g,j}.\]</span></div>
+  <p class="narrow muted">Either a relative decline of <span class="kx">\(U_w\)</span> below the retention threshold or a sufficient rise in <span class="kx">\(a_w\)</span> triggers replacement. The paper uses <span class="kx">\(n_{\min}=3\)</span>, lag <span class="kx">\(\ell=2\)</span>, <span class="kx">\(\rho=0.85\)</span>, and <span class="kx">\(\eta=10\)</span> points, fixed across stages and models. "Saturation" is this operational rule, not a measured plateau in held-out performance, and neither condition proves the pool has been mastered.</p>
+
+  <h3 class="sub">The training loop</h3>
+<div class="algo"><span class="c"># Algorithm 1 · A-RSI: pool refresh from training logs</span>
+<span class="k">input</span>  θ₀ = S_t, initial pool P₁, ordered disjoint replacement pools drawn from C under quotas k, budget W
+n ← 0 ;  H ← P₁
+<span class="k">for</span> w = 1 … W:
+    fresh optimizer + scheduler;  train H GRPO steps from θ_{w−1} on P_w  →  θ_w, log L_w
+    <span class="k">if</span> health gate fails:  retry once from θ_{w−1}, same pool and seed;  halt if the retry fails
+    n ← n + 1 ;  compute U_w, a_w from L_w
+    δ_w ← trigger(n, U, a)                       <span class="c"># reads training logs only</span>
+    <span class="k">if</span> w = W:  <span class="k">return</span> θ_w
+    <span class="k">if</span> δ_w = 1 and no declared pool remains:  halt, <span class="k">return</span> θ_w   <span class="c"># never silently reuse</span>
+    <span class="k">if</span> δ_w = 1:  P_{w+1} ← next unused pool ;  H ← H ∪ P_{w+1} ;  n ← 0
+    <span class="k">else</span>:        P_{w+1} ← P_w</div>
+  <p class="caption">Each window is 100 GRPO updates with eight rollouts per prompt; a refresh swaps in 400 unused tasks. Reward coefficients are <span class="kx">\(\lambda_{\mathrm{fmt}}=0.1\)</span> and <span class="kx">\(\lambda_{\mathrm{stop}}=0.3\)</span>.</p>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="block alt" id="results">
+  <div class="container">
+    <p class="kicker">Results</p>
+    <h2 class="title">Eight windows. Three pools.<br>Steady gains on eleven full benchmarks.</h2>
+    <p class="lead">Full-test-set accuracy on MMSI, MathVerse, MathVision, MMMU-Pro (4, 10, vision), VisNumBench, MMMU, ChartQA, PhyX, and SCEMQA-MC at an 8,192-token response limit. <span class="kx">\(S_{ij}\)</span> is the model after the <span class="kx">\(j\)</span>-th window on the <span class="kx">\(i\)</span>-th pool.</p>
+    <div class="viz-head" style="margin-top:20px">
+      <div><div class="viz-title" id="bm-title">Qwen3-VL-8B-Instruct</div><div class="viz-sub">Cell shade: change from S<sub>0</sub>. Click a column to compare it with S<sub>0</sub>.</div></div>
+      <div class="seg" id="bm-model"><button class="on" data-m="qwen">Qwen3-VL-8B</button><button data-m="mimo">MiMo-VL-7B</button></div>
+    </div>
+    <div class="tbl-wrap" id="bm-table"></div>
+
+    <h3 class="sub">Random fresh tasks beat smarter selection</h3>
+    <p class="narrow muted">Replacing the pool with tasks chosen by difficulty frontier, failure history, or a learnable band all trailed a random draw under the same family quotas. The result is specific to these generators, this model, and these selection rules.</p>
+    <div class="viz" id="sel-chart" style="margin-top:16px"></div>
+
+    <h3 class="sub">Where the gains land: visual types at S<sub>32</sub></h3>
+    <p class="narrow muted">Geometry and counting gain the most, alongside large drops in truncation.</p>
+    <div class="tbl-wrap" id="vt-table"></div>
+  </div>
+</section>
+
+<!-- ============ ANALYSIS ============ -->
+<section class="block container" id="analysis">
+  <p class="kicker">Analysis</p>
+  <h2 class="title">Is the gain real?<br>We audited our own pipeline.</h2>
+  <p class="lead">Higher reward is not the same as better reasoning, and a higher score is not the same as more correct answers. These checks separate the two.</p>
+  <div class="audits">
+    <div class="audit rv"><div class="v">1,000<small> / 1,000</small></div><h4>Generated answers agree with independent solvers</h4><p>200 consumed tasks from each of five generator groups, sampled before recomputing anything. Gold values and image hashes also match the source records.</p></div>
+    <div class="audit rv"><div class="v">3 × 1,000<small> / 1,000</small></div><h4>Reward ranks correctness first</h4><p>Seven response variants per task, scored with the actual training reward: a correct committed answer ranks above an incorrect one, and with correctness held fixed, canonical formatting and normal termination each raise reward.</p></div>
+    <div class="audit rv"><div class="v">4,000<small> / 4,000</small></div><h4>Injected defects detected</h4><p>Corrupted references, image bytes, source questions, and truncated images are all caught by the audit checks.</p></div>
+    <div class="audit warn rv"><div class="v">220<small> / 16,000</small></div><h4>A checker weakness, reported</h4><p>On 110 choice questions the production checker accepts a gold-prefixed ambiguous answer and a gold option followed by unrelated text. A stricter candidate passes all 16,000 checks; on 3,760 logged choice responses it changes one score.</p></div>
+    <div class="audit rv"><div class="v">800<small> images</small></div><h4>Reproduced byte for byte</h4><p>Replaying the frozen generators reproduces 800 whole images exactly; the remaining 200 charts match in plot pixels and labels but differ in fonts.</p></div>
+    <div class="audit rv"><div class="v">80%<small> vs 59%</small></div><h4>Gain kept at twice the budget</h4><p>Doubling the output limit from 4,096 to 8,192 tokens keeps 80% of A-RSI's gain over base, against 59% for MM-Zero v5.</p></div>
+  </div>
+  <div class="figure rv" style="margin-top:22px">
+    <img src="assets/fig/results_budget_correction.webp" alt="Training gains retained at twice the output budget: A-RSI 80%, MM-Zero v5 59%." loading="lazy" data-zoom>
+  </div>
+  <p class="caption"><b>Training gains retained at twice the output budget.</b> Gains over base on the eleven-benchmark suite, normalized to each method's 4,096-token gain (4.08 points for A-RSI, 4.18 for MM-Zero v5). Base and trained checkpoints use the same output budget.</p>
+
+  <h3 class="sub">What the evidence does and does not support</h3>
+  <div class="claims rv">
+    <div class="h y">✓ Supported</div><div class="h n">✗ Not supported</div>
+    <div>A training log alone, with no test set, can tell that a pool is learned out; the detector fires on the old pool and on two replacement pools.</div><div>That the detector finds the best refresh time.</div>
+    <div>After the detector fires, random fresh tasks reach 61.05 with 800 new tasks, against 60.64 for replacing every window with 3,200 (4.09 vs 0.90 points per thousand tasks).</div><div>That the +0.40 point estimate establishes a detector-timing advantage.</div>
+    <div>Choosing the replacement by difficulty frontier or by the model's rollouts is not better than random.</div><div>That difficulty control or state-based selection improves the benchmark.</div>
+    <div>The old pool is learned out: No-Refresh scores 58.48 and 58.35 before running out of signal; at window 6 every refreshing arm is 1.39 to 2.05 above it.</div><div>Any "significant" improvement; every arm was trained once.</div>
+    <div>Part of MM-Zero v5's headline gain is termination: its gain over base falls from +4.18 to +2.45 with the longer limit.</div><div>That MM-Zero's gain is spurious, or that A-RSI significantly exceeds it.</div>
+    <div>On MiMo-VL the detector fires at window 3, as on Qwen, and random refresh exceeds original-pool continuation by +0.70 at window 8.</div><div>That the small MiMo margins (+0.02, +0.18) establish a timing advantage.</div>
+  </div>
+</section>
+
+<!-- ============ CASES ============ -->
+<section class="block alt" id="cases">
+  <div class="container">
+    <p class="kicker">Case study</p>
+    <h2 class="title">Finishing is not the same as correcting.</h2>
+    <p class="lead">Two observable changes, reported separately: a response that used to hit the token limit now finishes, or a response that finished with a wrong answer now finishes with the right one. Base model <span class="kx">\(S_0\)</span> versus <span class="kx">\(S_{32}\)</span>, same 8,192-token limit. These are selected examples, not frequency estimates.</p>
+    <div class="case-nav" id="case-nav"></div>
+    <div id="case-view"></div>
+  </div>
+</section>
+
+<!-- ============ CITATION ============ -->
+<section class="block container" id="citation">
+  <p class="kicker">Citation</p>
+  <h2 class="title">Citation</h2>
+  <p class="muted">Preprint · 2026</p>
+<div class="bib" id="bib"><button type="button" id="bib-copy">Copy</button>@article{liu2026arsi,
+  title   = {{A-RSI}: Adaptive Task Refresh for Zero-Data Multimodal Self-Improvement},
+  author  = {Liu, Yu and Li, Youxing and Tan, Yuedong and Yang, Zhiwei and Su, Zihan and
+             Feng, Hanqi and Zhang, Shaojie and Liao, Libin and Wan, Zihao and Wu, Chenxu and
+             Cao, Cong and Yuan, Fangfang and Liu, Yanbing and Chen, Ziheng and Fu, Pei and
+             Timofte, Radu and Wu, Zongwei and Sebe, Nicu and Poczos, Barnabas and Luan, Jian},
+  year    = {2026},
+  note    = {Preprint}
+}</div>
+</section>
+</main>
+
+<footer>
+  <div class="container">
+    <span><span class="wm two"><span class="cal">A</span><span class="rsi">-RSI</span></span> · Adaptive Task Refresh for Zero-Data Multimodal Self-Improvement</span>
+    <span>Page layout after the <a href="https://darwin-agent.github.io/HarnessPAI/" target="_blank" rel="noopener">HarnessPAI</a> project page.</span>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox"><img alt=""></div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/main.js?v=4"></script>
+<script src="js/hero.js?v=4"></script>
+<script src="js/forge.js?v=4"></script>
+<script src="js/controller.js?v=4"></script>
+<script src="js/charts.js?v=4"></script>
+<script src="js/cases.js?v=4"></script>
+</body>
+</html>
