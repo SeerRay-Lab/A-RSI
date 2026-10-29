@@ -56,7 +56,30 @@
     if (m && openTab(m[1])) document.getElementById('demo').scrollIntoView();
   }
   window.addEventListener('hashchange', fromHash);
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#demo-"]');
+    if (!a) return;
+    const name = a.getAttribute('href').slice(6);
+    if (!document.querySelector('.tab[data-tab="' + name + '"]')) return;
+    e.preventDefault();
+    openTab(name);
+    history.replaceState(null, '', '#demo-' + name);
+    document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+  });
   window.addEventListener('load', fromHash);
+
+  // Mobile navigation.
+  const mt = document.getElementById('menu-toggle'), tn = document.getElementById('topnav');
+  if (mt) {
+    mt.addEventListener('click', () => { const open = tn.classList.toggle('open'); mt.setAttribute('aria-expanded', open); });
+    tn.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { tn.classList.remove('open'); mt.setAttribute('aria-expanded', false); }));
+  }
+  // "Next" buttons inside demo panels.
+  document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => {
+    openTab(b.dataset.open);
+    history.replaceState(null, '', '#demo-' + b.dataset.open);
+    document.querySelector('#demo .tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
 
   // Segmented toggles: one active button per group, change event with data-m.
   window.ARSI_seg = function (id, cb) {

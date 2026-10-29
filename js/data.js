@@ -128,8 +128,12 @@ window.ARSI = {
     ]
   },
 
-  // Replacement-pool family quotas k = (geo, chart, table, count), sum 400.
+  // Replacement-pool family quotas k = (geo, chart, table, count), sum 400; old pool mix (appendix "Initial pool").
   quota: { geo: 194, chart: 131, table: 54, count: 21 },
+  oldPool: { geo: 204, chart: 296 },
+
+  // Qwen S_t per benchmark and the S_t -> S32 change (appendix table "tab:twelve").
+  stQwen: { 'MMSI': [26.40, 2.90], 'MathVerse': [62.26, 1.22], 'MathVision': [47.04, 4.41], 'MMMU-Pro (4)': [58.98, 4.21], 'VisNumBench': [52.90, 3.08], 'MMMU-Pro (10)': [51.76, 2.20], 'MMMU-Pro (vision)': [49.54, 4.22], 'MMMU': [62.23, 2.12], 'ChartQA': [82.84, 2.12], 'PhyX': [65.83, 8.33], 'SCEMQA-MC': [75.71, 1.19] },
 
   // Hero: Qwen main trajectory (Table 2 Macro11; S_t = 57.77).
   hero: [

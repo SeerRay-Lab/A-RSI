@@ -77,7 +77,7 @@
     }
     cats.forEach((c, i) => {
       const x = L + i * bw + bw * 0.18, w = bw * 0.64, h = (vals[i] / max) * (B - top);
-      s += '<rect x="' + x.toFixed(1) + '" y="' + (B - h).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="4" fill="#eb6834"/>';
+      s += '<rect x="' + x.toFixed(1) + '" y="' + (B - h).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="4" fill="#c9a227"/>';
       s += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (B - h - 6).toFixed(1) + '" font-size="12" font-weight="700" text-anchor="middle" fill="#121317">' + vals[i] + '</text>';
       s += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (B + 18) + '" font-size="12" text-anchor="middle" fill="#121317">' + esc(c) + '</text>';
     });
@@ -269,9 +269,15 @@
     const fmt = $('fg-box').checked ? 1 : 0, stop = ($('fg-stop').checked && fmt) ? 0 : -1;   // r_stop = 0 only for a normal ending with a final boxed answer
     const ans = v.trim() === '' ? null : (norm(v) === norm(cur.a) ? 1 : 0);
     const cell = (k, val, cls) => '<div class="' + (cls || '') + '"><small>' + k + '</small><b>' + val + '</b></div>';
-    if (ans === null) { box.innerHTML = cell('r_ans', '—') + cell('r_fmt', fmt) + cell('r_stop', stop) + cell('total r', '—', 'tot'); return; }
+    if (ans === null) { box.innerHTML = cell('r_ans', '—') + cell('r_fmt', fmt) + cell('r_stop', stop) + cell('total r', '—', 'tot'); if ($('fg-why')) $('fg-why').textContent = ''; return; }
     const tot = ans + 0.1 * fmt + 0.3 * stop;
     box.innerHTML = cell('r_ans', ans) + cell('r_fmt', fmt) + cell('r_stop', stop) + cell('total r', tot.toFixed(2), 'tot');
+    const note = $('fg-why');
+    if (note) note.innerHTML = ans === 0
+      ? 'Wrong but finished with a boxed answer: r = 0.10. Wrong and cut off after an earlier box: r = −0.20. GRPO still prefers finishing, so a higher reward does not mean a more correct answer.'
+      : (fmt && stop === 0 ? 'Correct, boxed, and finished normally: r = 1.10, the top of the scale.'
+        : fmt ? 'Correct but cut off after an earlier box: r = 0.80. Still above any wrong answer (at most 0.10).'
+        : 'Correct but without a final boxed answer, so r_stop = −1: r = 0.70. Still above any wrong answer (at most 0.10).');
   }
 
   function generate() {
